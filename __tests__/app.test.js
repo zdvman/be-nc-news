@@ -34,7 +34,6 @@ describe('GET /api/topics', () => {
       .expect(200)
       .then(({ body: { topics } }) => {
         expect(Array.isArray(topics)).toBe(true);
-        expect(topics.length).toBeGreaterThan(0);
         expect(topics.length).toBe(3);
 
         // Check the shape of the response objects
