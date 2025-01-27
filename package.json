@@ -5,9 +5,12 @@
   "main": "index.js",
   "scripts": {
     "setup-dbs": "psql -f ./db/setup.sql",
-    "seed": "node ./db/seeds/run-seed.js",
+    "seed-dev": "NODE_ENV=development node ./db/seeds/run-seed.js",
+    "seed-test": "NODE_ENV=test node ./db/seeds/run-seed.js",
     "test": "jest --verbose",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "start-dev": "NODE_ENV=development nodemon listen.js",
+    "start-test": "NODE_ENV=test nodemon listen.js"
   },
   "repository": {
     "type": "git",
@@ -31,6 +34,7 @@
   "dependencies": {
     "dotenv": "^16.0.0",
     "express": "^4.21.2",
+    "nodemon": "^3.1.9",
     "pg": "^8.7.3"
   },
   "jest": {
