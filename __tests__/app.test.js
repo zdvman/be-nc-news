@@ -163,3 +163,76 @@ describe('GET /api/articles', () => {
       });
   });
 });
+
+describe('GET /api/articles/:article_id/comments', () => {
+  test(`Responds with: an array of comments for the given article_id of which each comment should have the following properties:
+      - comment_id
+      - votes
+      - created_at
+      - author
+      - body
+      - article_id
+      Comments should be served with the most recent comments first.`, () => {
+    return request(app)
+      .get('/api/articles/1/comments')
+      .expect(200)
+      .then(({ body: { comments } }) => {
+        expect(Array.isArray(comments)).toBe(true);
+        expect(comments.length).toBe(11);
+        expect(comments).toBeSorted('created_at', { descending: true });
+        comments.forEach((comment) => {
+          expect(comment).toEqual(
+            expect.objectContaining({
+              comment_id: expect.any(Number),
+              votes: expect.any(Number),
+              created_at: expect.any(String),
+              author: expect.any(String),
+              body: expect.any(String),
+              article_id: expect.any(Number),
+            })
+          );
+        });
+      });
+  });
+
+  test('200: No comments found for provided Article', () => {
+    return request(app)
+      .get('/api/articles/7/comments')
+      .expect(200)
+      .then(({ body: { comments } }) => {
+        expect(Array.isArray(comments)).toBe(true);
+        expect(comments.length).toBe(0);
+      });
+  });
+
+  test('404: Article with provided ID does not exist', () => {
+    return request(app)
+      .get('/api/articles/1000/comments')
+      .expect(404)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe('Article with ID 1000 is not found');
+      });
+  });
+
+  test('400: Responds with Invalid article ID', () => {
+    return request(app)
+      .get('/api/articles/not_ID/comments')
+      .expect(400)
+      .then(({ body: { msg, error } }) => {
+        expect(msg).toBe('Bad request');
+        expect(error).toBe('invalid input syntax for type integer: "not_ID"');
+      });
+  });
+
+  test('400: Responds with proper error message if article_id exceeds maximum value for a PostgreSQL INTEGER', () => {
+    return request(app)
+      .get('/api/articles/100000000000000/comments')
+      .expect(400)
+      .then(({ body: { msg, error } }) => {
+        expect(msg).toBe('Bad request');
+        expect(error).toBe(
+          'value "100000000000000" is out of range for type integer'
+        );
+      });
+  });
+});
