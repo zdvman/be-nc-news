@@ -12,12 +12,20 @@ app.get('/api/topics', getTopics);
 
 app.get('/api/articles/:article_id', getArticleById);
 
-// Catch-all middleware for undefined routes
-app.use((req, res, next) => {
-  res.status(404).send({ msg: 'Not Found' });
+app.use((req, res) => {
+  res.status(404).send({ msg: 'Endpoint not found' });
 });
 
-// Error-handling middleware for custom errors
+app.use((err, req, res, next) => {
+  if (err.code === '22P02' || err.code === '22003') {
+    res
+      .status(400)
+      .send({ msg: 'Bad request', error: err.message.split('\n')[0] });
+  } else {
+    next(err);
+  }
+});
+
 app.use((err, req, res, next) => {
   if (err.msg && err.status) {
     res.status(err.status).send({ msg: err.msg });
@@ -26,9 +34,7 @@ app.use((err, req, res, next) => {
   }
 });
 
-// Error-handling middleware for internal server errors
 app.use((err, req, res, next) => {
-  // console.error(err);
   res.status(500).send({ msg: 'Internal Server Error' });
 });
 

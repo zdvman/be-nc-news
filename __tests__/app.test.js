@@ -35,11 +35,7 @@ describe('GET /api/topics', () => {
       .then(({ body: { topics } }) => {
         expect(Array.isArray(topics)).toBe(true);
         expect(topics.length).toBe(3);
-
-        // Check the shape of the response objects
         topics.forEach((topic) => {
-          // slug VARCHAR PRIMARY KEY,
-          // description VARCHAR
           expect(topic).toEqual(
             expect.objectContaining({
               slug: expect.any(String),
@@ -50,12 +46,12 @@ describe('GET /api/topics', () => {
       });
   });
 
-  test('404: Responds with Not Found for invalid endpoint', () => {
+  test('404: Responds with Endpoint not found for invalid endpoint', () => {
     return request(app)
       .get('/api/not-a-route')
       .expect(404)
-      .then(({ body: { msg } }) => {
-        expect(msg).toBe('Not Found');
+      .then(({ body }) => {
+        expect(body.msg).toBe('Endpoint not found');
       });
   });
 });
@@ -86,27 +82,6 @@ describe('GET /api/articles/:article_id', () => {
           article_img_url:
             'https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700',
         });
-
-        // article_id SERIAL PRIMARY KEY,
-        // title VARCHAR NOT NULL,
-        // topic VARCHAR NOT NULL REFERENCES topics(slug),
-        // author VARCHAR NOT NULL REFERENCES users(username),
-        // body VARCHAR NOT NULL,
-        // created_at TIMESTAMP DEFAULT NOW(),
-        // votes INT DEFAULT 0 NOT NULL,
-        // article_img_url VARCHAR DEFAULT 'https://images.pexels.com/photos/97050/pexels-photo-97050.jpeg?w=700&h=700'
-        expect(article).toEqual(
-          expect.objectContaining({
-            article_id: expect.any(Number),
-            title: expect.any(String),
-            topic: expect.any(String),
-            author: expect.any(String),
-            body: expect.any(String),
-            created_at: expect.any(String),
-            votes: expect.any(Number),
-            article_img_url: expect.any(String),
-          })
-        );
       });
   });
 
@@ -123,8 +98,9 @@ describe('GET /api/articles/:article_id', () => {
     return request(app)
       .get('/api/articles/not_ID')
       .expect(400)
-      .then(({ body: { msg } }) => {
-        expect(msg).toBe('Invalid article ID');
+      .then(({ body: { msg, error } }) => {
+        expect(msg).toBe('Bad request');
+        expect(error).toBe('invalid input syntax for type integer: "not_ID"');
       });
   });
 
@@ -132,9 +108,10 @@ describe('GET /api/articles/:article_id', () => {
     return request(app)
       .get('/api/articles/100000000000000')
       .expect(400)
-      .then(({ body: { msg } }) => {
-        expect(msg).toBe(
-          'Article ID exceeds maximum allowed value of 2147483647'
+      .then(({ body: { msg, error } }) => {
+        expect(msg).toBe('Bad request');
+        expect(error).toBe(
+          'value "100000000000000" is out of range for type integer'
         );
       });
   });
