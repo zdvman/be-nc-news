@@ -30,7 +30,20 @@ exports.checkArticleExists = (article_id) => {
     if (rows.length === 0)
       return Promise.reject({
         status: 404,
-        msg: `Article with ID ${article_id} is not found`,
+        msg: `Article with ID "${article_id}" is not found`,
+      });
+    return;
+  });
+};
+
+exports.checkUserExists = (username) => {
+  const args = [username];
+  const sql = `SELECT * FROM users WHERE username = $1`;
+  return db.query(sql, args).then(({ rows }) => {
+    if (rows.length === 0)
+      return Promise.reject({
+        status: 404,
+        msg: `User with username "${username}" is not found`,
       });
     return;
   });

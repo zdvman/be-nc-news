@@ -8,7 +8,7 @@ function selectArticleById({ article_id }) {
   return db.query(sql, args).then(({ rows }) => {
     if (rows.length === 0) {
       return Promise.reject({
-        msg: `Article with ID ${article_id} is not found`,
+        msg: `Article with ID "${article_id}" is not found`,
         status: 404,
       });
     }

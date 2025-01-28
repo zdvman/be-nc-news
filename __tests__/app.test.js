@@ -90,7 +90,7 @@ describe('GET /api/articles/:article_id', () => {
       .get('/api/articles/100000')
       .expect(404)
       .then(({ body: { msg } }) => {
-        expect(msg).toBe('Article with ID 100000 is not found');
+        expect(msg).toBe('Article with ID "100000" is not found');
       });
   });
 
@@ -210,7 +210,7 @@ describe('GET /api/articles/:article_id/comments', () => {
       .get('/api/articles/1000/comments')
       .expect(404)
       .then(({ body: { msg } }) => {
-        expect(msg).toBe('Article with ID 1000 is not found');
+        expect(msg).toBe('Article with ID "1000" is not found');
       });
   });
 
@@ -227,6 +227,157 @@ describe('GET /api/articles/:article_id/comments', () => {
   test('400: Responds with proper error message if article_id exceeds maximum value for a PostgreSQL INTEGER', () => {
     return request(app)
       .get('/api/articles/100000000000000/comments')
+      .expect(400)
+      .then(({ body: { msg, error } }) => {
+        expect(msg).toBe('Bad request');
+        expect(error).toBe(
+          'value "100000000000000" is out of range for type integer'
+        );
+      });
+  });
+});
+
+describe('POST /api/articles/:article_id/comments', () => {
+  test('201: Responds with the posted comment for a valid article ID', () => {
+    const newComment = {
+      username: 'butter_bridge',
+      body: 'This is a test comment.',
+    };
+
+    return request(app)
+      .post('/api/articles/1/comments')
+      .send(newComment)
+      .expect(201)
+      .then(({ body: { comment } }) => {
+        expect(comment).toEqual(
+          expect.objectContaining({
+            comment_id: expect.any(Number),
+            body: 'This is a test comment.',
+            author: 'butter_bridge',
+            article_id: 1,
+            votes: expect.any(Number),
+            created_at: expect.any(String),
+          })
+        );
+      });
+  });
+
+  test('404: Responds with error if article_id is missing in the request', () => {
+    const newComment = {
+      username: 'butter_bridge',
+      body: 'This is a test comment.',
+    };
+
+    return request(app)
+      .post('/api/articles//comments')
+      .send(newComment)
+      .expect(404)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe('Endpoint not found');
+      });
+  });
+
+  test('400: Responds with error if article_id is invalid in the request', () => {
+    const newComment = {
+      username: 'butter_bridge',
+      body: 'This is a test comment.',
+    };
+
+    return request(app)
+      .post('/api/articles/not_ID/comments')
+      .send(newComment)
+      .expect(400)
+      .then(({ body: { msg, error } }) => {
+        expect(msg).toBe('Bad request');
+        expect(error).toBe('invalid input syntax for type integer: "not_ID"');
+      });
+  });
+
+  test('400: Responds with error if the request body is missing the "body" property', () => {
+    const newComment = {
+      username: 'butter_bridge',
+    };
+
+    return request(app)
+      .post('/api/articles/1/comments')
+      .send(newComment)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe('Body is required');
+      });
+  });
+
+  test('400: Responds with error if the request body is missing the "username" property', () => {
+    const newComment = {
+      body: 'This is a test comment.',
+    };
+
+    return request(app)
+      .post('/api/articles/1/comments')
+      .send(newComment)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe('Username is required');
+      });
+  });
+
+  test('404: Responds with error if the article does not exist', () => {
+    const newComment = {
+      username: 'butter_bridge',
+      body: 'This is a test comment.',
+    };
+
+    return request(app)
+      .post('/api/articles/1000/comments')
+      .send(newComment)
+      .expect(404)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe('Article with ID "1000" is not found');
+      });
+  });
+
+  test('404: Responds with error if the username does not exist', () => {
+    const newComment = {
+      username: 'nonexistent_user',
+      body: 'This is a test comment.',
+    };
+
+    return request(app)
+      .post('/api/articles/1/comments')
+      .send(newComment)
+      .expect(404)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe('User with username "nonexistent_user" is not found');
+      });
+  });
+
+  test('400: Responds with error for invalid article_id (not a number)', () => {
+    const newComment = {
+      username: 'butter_bridge',
+      body: 'This is a test comment.',
+    };
+
+    return request(app)
+      .post('/api/articles/not_a_number/comments')
+      .send(newComment)
+      .expect(400)
+      .then(({ body: { msg, error } }) => {
+        expect(msg).toBe('Bad request');
+        expect(error).toBe(
+          'invalid input syntax for type integer: "not_a_number"'
+        );
+      });
+  });
+
+  test('400: Responds with error if article_id exceeds maximum value for PostgreSQL INTEGER', () => {
+    const newComment = {
+      username: 'butter_bridge',
+      body: 'This is a test comment.',
+    };
+
+    return request(app)
+      .post('/api/articles/100000000000000/comments')
+      .send(newComment)
       .expect(400)
       .then(({ body: { msg, error } }) => {
         expect(msg).toBe('Bad request');
