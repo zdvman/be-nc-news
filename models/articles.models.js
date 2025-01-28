@@ -15,6 +15,44 @@ function selectArticleById({ article_id }) {
   });
 }
 
+function selectArticles({ sort_by = 'created_at', order = 'desc' }) {
+  const validSortColumns = ['created_at'];
+  const validOrders = ['asc', 'desc'];
+  let sql = `SELECT 
+      articles.author,
+      articles.title,
+      articles.article_id,
+      articles.topic,
+      articles.created_at,
+      articles.votes,
+      articles.article_img_url,
+      COUNT(comments.comment_id) AS comment_count
+    FROM articles
+    LEFT JOIN comments ON articles.article_id = comments.article_id
+    GROUP BY articles.article_id`;
+
+  if (!validSortColumns.includes(sort_by)) {
+    return Promise.reject({
+      msg: `Invalid sort_by column: ${sort_by}`,
+      status: 400,
+    });
+  }
+
+  if (!validOrders.includes(order)) {
+    return Promise.reject({
+      msg: `Invalid order: ${order}. Must be 'asc' or 'desc'`,
+      status: 400,
+    });
+  }
+
+  sql += ` ORDER BY ${sort_by} ${order.toUpperCase()}`;
+
+  return db.query(sql).then(({ rows }) => {
+    return rows;
+  });
+}
+
 module.exports = {
   selectArticleById,
+  selectArticles,
 };
