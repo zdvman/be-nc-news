@@ -1,7 +1,6 @@
 const {
   selectArticleById,
   selectArticles,
-  selectCommentsByArticle,
 } = require('./../models/articles.models');
 
 function getArticleById(request, response, next) {
@@ -20,16 +19,7 @@ function getArticles(request, response, next) {
     .catch(next);
 }
 
-function getCommentsByArticle(request, response, next) {
-  return selectCommentsByArticle(request.params, request.query)
-    .then((comments) => {
-      response.status(200).send({ comments });
-    })
-    .catch(next);
-}
-
 module.exports = {
   getArticleById,
   getArticles,
-  getCommentsByArticle,
 };
