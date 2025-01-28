@@ -5,6 +5,7 @@ const { getTopics } = require('./controllers/topics.controllers');
 const {
   getArticleById,
   getArticles,
+  getCommentsByArticle,
 } = require('./controllers/articles.controllers');
 
 app.use(express.json());
@@ -17,12 +18,13 @@ app.get('/api/articles/:article_id', getArticleById);
 
 app.get('/api/articles', getArticles);
 
+app.get('/api/articles/:article_id/comments', getCommentsByArticle);
+
 app.use((req, res) => {
   res.status(404).send({ msg: 'Endpoint not found' });
 });
 
 app.use((err, req, res, next) => {
-  // console.log(err);
   if (err.code === '22P02' || err.code === '22003') {
     res
       .status(400)

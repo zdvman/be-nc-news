@@ -1,3 +1,5 @@
+const db = require('./../connection');
+
 exports.convertTimestampToDate = ({ created_at, ...otherProperties }) => {
   if (!created_at) return { ...otherProperties };
   return { created_at: new Date(created_at), ...otherProperties };
@@ -18,5 +20,18 @@ exports.formatComments = (comments, idLookup) => {
       author: created_by,
       ...this.convertTimestampToDate(restOfComment),
     };
+  });
+};
+
+exports.checkArticleExists = (article_id) => {
+  const args = [article_id];
+  const sql = `SELECT * FROM articles WHERE article_id = $1`;
+  return db.query(sql, args).then(({ rows }) => {
+    if (rows.length === 0)
+      return Promise.reject({
+        status: 404,
+        msg: `Article with ID ${article_id} is not found`,
+      });
+    return;
   });
 };
