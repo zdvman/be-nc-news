@@ -693,3 +693,57 @@ describe('GET /api/articles (sorting queries)', () => {
       });
   });
 });
+
+describe('GET /api/articles (Topic Query)', () => {
+  test('200: Returns all articles filtered by a valid topic', () => {
+    return request(app)
+      .get('/api/articles?topic=mitch')
+      .expect(200)
+      .then(({ body: { articles } }) => {
+        expect(articles.length).toBe(12);
+        articles.forEach((article) => {
+          expect(article.topic).toBe('mitch');
+        });
+      });
+  });
+
+  test('200: Returns all articles filtered by a valid topic', () => {
+    return request(app)
+      .get('/api/articles?topic=cats')
+      .expect(200)
+      .then(({ body: { articles } }) => {
+        expect(articles.length).toBe(1);
+        articles.forEach((article) => {
+          expect(article.topic).toBe('cats');
+        });
+      });
+  });
+
+  test('200: Returns an empty array if no articles match the given topic', () => {
+    return request(app)
+      .get('/api/articles?topic=nonexistent_topic')
+      .expect(200)
+      .then(({ body: { articles } }) => {
+        expect(Array.isArray(articles)).toBe(true);
+        expect(articles.length).toBe(0);
+      });
+  });
+
+  test('200: Returns sorted articles filtered by topic (default sort: created_at, desc)', () => {
+    return request(app)
+      .get('/api/articles?topic=mitch')
+      .expect(200)
+      .then(({ body: { articles } }) => {
+        expect(articles).toBeSortedBy('created_at', { descending: true });
+      });
+  });
+
+  test('200: Returns sorted articles filtered by topic when sort_by and order are provided', () => {
+    return request(app)
+      .get('/api/articles?topic=mitch&sort_by=votes&order=asc')
+      .expect(200)
+      .then(({ body: { articles } }) => {
+        expect(articles).toBeSortedBy('votes', { descending: false });
+      });
+  });
+});
