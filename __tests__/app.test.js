@@ -636,3 +636,60 @@ describe('GET /api/users', () => {
       });
   });
 });
+
+describe('GET /api/articles (sorting queries)', () => {
+  test('200: Sorts articles by a valid column in descending order by default', () => {
+    return request(app)
+      .get('/api/articles?sort_by=votes')
+      .expect(200)
+      .then(({ body: { articles } }) => {
+        expect(articles).toBeSortedBy('votes', { descending: true });
+      });
+  });
+
+  test('200: Sorts articles in ascending order when order=asc', () => {
+    return request(app)
+      .get('/api/articles?sort_by=created_at&order=asc')
+      .expect(200)
+      .then(({ body: { articles } }) => {
+        expect(articles).toBeSortedBy('created_at', { ascending: true });
+      });
+  });
+
+  test('400: Responds with an error if sort_by column is invalid', () => {
+    return request(app)
+      .get('/api/articles?sort_by=invalid_column')
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe('Invalid sort_by column: invalid_column');
+      });
+  });
+
+  test('400: Responds with an error if order is invalid', () => {
+    return request(app)
+      .get('/api/articles?sort_by=created_at&order=random')
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Invalid order: random. Must be 'asc' or 'desc'");
+      });
+  });
+
+  test('200: Responds with default sorting by created_at in descending order if no query params are provided', () => {
+    return request(app)
+      .get('/api/articles')
+      .expect(200)
+      .then(({ body: { articles } }) => {
+        expect(articles).toBeSortedBy('created_at', { descending: true });
+      });
+  });
+
+  test('200: Ignores unexpected query parameters and still returns articles', () => {
+    return request(app)
+      .get('/api/articles?sort_by=created_at&order=asc&unexpected_param=value')
+      .expect(200)
+      .then(({ body: { articles } }) => {
+        expect(Array.isArray(articles)).toBe(true);
+        expect(articles).toBeSortedBy('created_at', { ascending: true });
+      });
+  });
+});
