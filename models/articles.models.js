@@ -16,7 +16,8 @@ function selectArticleById({ article_id }) {
   });
 }
 
-function selectArticles({ sort_by = 'created_at', order = 'desc' }) {
+function selectArticles({ sort_by = 'created_at', order = 'desc', topic }) {
+  const args = [];
   const validSortColumns = [
     'author',
     'title',
@@ -28,6 +29,16 @@ function selectArticles({ sort_by = 'created_at', order = 'desc' }) {
     'comment_count',
   ];
   const validOrders = ['asc', 'desc'];
+  const columnMap = {
+    author: 'articles.author',
+    title: 'articles.title',
+    article_id: 'articles.article_id',
+    topic: 'articles.topic',
+    created_at: 'articles.created_at',
+    votes: 'articles.votes',
+    article_img_url: 'articles.article_img_url',
+    comment_count: 'comment_count',
+  };
   let sql = `SELECT 
       articles.author,
       articles.title,
@@ -38,8 +49,14 @@ function selectArticles({ sort_by = 'created_at', order = 'desc' }) {
       articles.article_img_url,
       COUNT(comments.comment_id) AS comment_count
     FROM articles
-    LEFT JOIN comments ON articles.article_id = comments.article_id
-    GROUP BY articles.article_id`;
+    LEFT JOIN comments ON articles.article_id = comments.article_id`;
+
+  if (topic) {
+    sql += ` WHERE articles.topic = $1`;
+    args.push(topic);
+  }
+
+  sql += ` GROUP BY articles.article_id`;
 
   if (!validSortColumns.includes(sort_by)) {
     return Promise.reject({
@@ -55,9 +72,9 @@ function selectArticles({ sort_by = 'created_at', order = 'desc' }) {
     });
   }
 
-  sql += ` ORDER BY ${sort_by} ${order.toUpperCase()}`;
+  sql += ` ORDER BY ${columnMap[sort_by]} ${order.toUpperCase()}`;
 
-  return db.query(sql).then(({ rows }) => {
+  return db.query(sql, args).then(({ rows }) => {
     return rows;
   });
 }
