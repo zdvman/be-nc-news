@@ -5,12 +5,20 @@ const { getTopics } = require('./controllers/topics.controllers');
 const {
   getArticleById,
   getArticles,
+  patchArticle,
 } = require('./controllers/articles.controllers');
 
 const {
   postComment,
   getCommentsByArticle,
 } = require('./controllers/comments.controllers');
+const {
+  handle404,
+  handle405,
+  handlePSQLErrors,
+  handleCustomErrors,
+  handle500,
+} = require('./middleware/errorHandling');
 
 app.use(express.json());
 
@@ -26,30 +34,16 @@ app.get('/api/articles/:article_id/comments', getCommentsByArticle);
 
 app.post('/api/articles/:article_id/comments', postComment);
 
-app.use((req, res) => {
-  res.status(404).send({ msg: 'Endpoint not found' });
-});
+app.patch('/api/articles/:article_id', patchArticle);
 
-app.use((err, req, res, next) => {
-  if (err.code === '22P02' || err.code === '22003') {
-    res
-      .status(400)
-      .send({ msg: 'Bad request', error: err.message.split('\n')[0] });
-  } else {
-    next(err);
-  }
-});
+app.use(handle405(app));
 
-app.use((err, req, res, next) => {
-  if (err.msg && err.status) {
-    res.status(err.status).send({ msg: err.msg });
-  } else {
-    next(err);
-  }
-});
+app.use(handle404);
 
-app.use((err, req, res, next) => {
-  res.status(500).send({ msg: 'Internal Server Error' });
-});
+app.use(handlePSQLErrors);
+
+app.use(handleCustomErrors);
+
+app.use(handle500);
 
 module.exports = app;
