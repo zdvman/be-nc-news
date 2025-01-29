@@ -528,3 +528,77 @@ describe('PATCH /api/articles/:article_id', () => {
       });
   });
 });
+
+describe('DELETE /api/comments/:comment_id', () => {
+  test('204: Responds with status 204 and no content', () => {
+    return request(app)
+      .delete('/api/comments/1')
+      .expect(204)
+      .then(({ body }) => {
+        expect(body).toEqual({});
+      });
+  });
+
+  test('404: Responds with error if comment with provided ID does not exist', () => {
+    return request(app)
+      .delete('/api/comments/1')
+      .expect(204)
+      .then(() => {
+        return request(app).delete('/api/comments/1').expect(404);
+      })
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe('Comment with ID "1" is not found');
+      });
+  });
+
+  test('404: Responds with error if `comment_id` does not exist', () => {
+    return request(app)
+      .delete('/api/comments/1000')
+      .expect(404)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe('Comment with ID "1000" is not found');
+      });
+  });
+
+  test('400: Responds with error if `comment_id` is invalid (not a number)', () => {
+    return request(app)
+      .delete('/api/comments/not_a_number')
+      .expect(400)
+      .then(({ body: { msg, error } }) => {
+        expect(msg).toBe('Bad request');
+        expect(error).toBe(
+          'invalid input syntax for type integer: "not_a_number"'
+        );
+      });
+  });
+
+  test('400: Responds with error if `comment_id` exceeds maximum value for PostgreSQL INTEGER', () => {
+    return request(app)
+      .delete('/api/comments/100000000000000')
+      .expect(400)
+      .then(({ body: { msg, error } }) => {
+        expect(msg).toBe('Bad request');
+        expect(error).toBe(
+          'value "100000000000000" is out of range for type integer'
+        );
+      });
+  });
+
+  test('404: Responds with error if `DELETE` is made to an endpoint that does not exist', () => {
+    return request(app)
+      .delete('/api/non-existent-endpoint')
+      .expect(404)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe('Endpoint not found');
+      });
+  });
+
+  test('405: Responds with error if `PUT` is made on a valid but unsupported endpoint', () => {
+    return request(app)
+      .put('/api/comments/1')
+      .expect(405)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe('Method not allowed');
+      });
+  });
+});
