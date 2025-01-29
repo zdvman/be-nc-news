@@ -75,5 +75,22 @@
         "article_id": 6
       }
     }
+  },
+  "PATCH /api/articles/:article_id": {
+    "description": "Update votes property of a specific article (increment or decrement according to the sign of inc_votes's value). After update, the votes must not be negative. The request body should include an object in the form { inc_votes: newVote }.",
+    "queries": [],
+    "exampleRequest": { "inc_votes": 1 },
+    "exampleResponse": {
+      "comment": {
+        "article_id": 1,
+        "title": "Living in the shadow of a great man",
+        "topic": "mitch",
+        "author": "butter_bridge",
+        "body": "I find this existence challenging",
+        "created_at": "2020-07-09T19:11:00.000Z",
+        "votes": 101,
+        "article_img_url": "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
+      }
+    }
   }
 }

@@ -387,3 +387,144 @@ describe('POST /api/articles/:article_id/comments', () => {
       });
   });
 });
+
+describe('PATCH /api/articles/:article_id', () => {
+  test('200: Responds with the updated article after incrementing votes', () => {
+    return request(app)
+      .patch('/api/articles/1')
+      .send({ inc_votes: 5 })
+      .expect(200)
+      .then(({ body: { article } }) => {
+        expect(article).toEqual({
+          article_id: 1,
+          title: 'Living in the shadow of a great man',
+          topic: 'mitch',
+          author: 'butter_bridge',
+          body: 'I find this existence challenging',
+          created_at: '2020-07-09T19:11:00.000Z',
+          votes: 105,
+          article_img_url:
+            'https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700',
+        });
+      });
+  });
+
+  test('200: Responds with the updated article after decrementing votes', () => {
+    return request(app)
+      .patch('/api/articles/1')
+      .send({ inc_votes: -3 })
+      .expect(200)
+      .then(({ body: { article } }) => {
+        expect(article).toEqual({
+          article_id: 1,
+          title: 'Living in the shadow of a great man',
+          topic: 'mitch',
+          author: 'butter_bridge',
+          body: 'I find this existence challenging',
+          created_at: '2020-07-09T19:11:00.000Z',
+          votes: 97,
+          article_img_url:
+            'https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700',
+        });
+      });
+  });
+
+  test('400: Responds with error if request body is missing `inc_votes`', () => {
+    return request(app)
+      .patch('/api/articles/1')
+      .send({})
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe('Number of increment votes is required');
+      });
+  });
+
+  test('400: Responds with error if `inc_votes` is zero', () => {
+    return request(app)
+      .patch('/api/articles/1')
+      .send({ inc_votes: 0 })
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe('Number of increment votes must be a non-zero number');
+      });
+  });
+
+  test('400: Responds with error if `inc_votes` is not a number', () => {
+    return request(app)
+      .patch('/api/articles/1')
+      .send({ inc_votes: 'not_a_number' })
+      .expect(400)
+      .then(({ body: { msg, error } }) => {
+        expect(msg).toBe('Bad request');
+        expect(error).toBe(
+          'invalid input syntax for type integer: "not_a_number"'
+        );
+      });
+  });
+
+  test('404: Responds with error if `article_id` does not exist', () => {
+    return request(app)
+      .patch('/api/articles/1000')
+      .send({ inc_votes: 5 })
+      .expect(404)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe('Article with ID "1000" is not found');
+      });
+  });
+
+  test('400: Responds with error if `article_id` is invalid (not a number)', () => {
+    return request(app)
+      .patch('/api/articles/not_a_number')
+      .send({ inc_votes: 5 })
+      .expect(400)
+      .then(({ body: { msg, error } }) => {
+        expect(msg).toBe('Bad request');
+        expect(error).toBe(
+          'invalid input syntax for type integer: "not_a_number"'
+        );
+      });
+  });
+
+  test('400: Responds with error if `article_id` exceeds maximum value for PostgreSQL INTEGER', () => {
+    return request(app)
+      .patch('/api/articles/100000000000000')
+      .send({ inc_votes: 5 })
+      .expect(400)
+      .then(({ body: { msg, error } }) => {
+        expect(msg).toBe('Bad request');
+        expect(error).toBe(
+          'value "100000000000000" is out of range for type integer'
+        );
+      });
+  });
+
+  test('404: Responds with error if `PATCH` is made to an endpoint that does not exist', () => {
+    return request(app)
+      .patch('/api/non-existent-endpoint')
+      .send({ inc_votes: 5 })
+      .expect(404)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe('Endpoint not found');
+      });
+  });
+
+  test('405: Responds with error if `PATCH` is made to a valid endpoint but without an article_id', () => {
+    return request(app)
+      .patch('/api/articles')
+      .send({ inc_votes: 5 })
+      .expect(405)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe('Method not allowed');
+      });
+  });
+
+  test('405: Responds with error if `PUT` is made on a valid but unsupported endpoint', () => {
+    return request(app)
+      .put('/api/articles/1')
+      .send({ inc_votes: 5 })
+      .expect(405)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe('Method not allowed');
+      });
+  });
+});
