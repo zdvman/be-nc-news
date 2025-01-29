@@ -73,7 +73,27 @@ function insertComment({ body, username }, { article_id }) {
     });
 }
 
+function removeComment({ comment_id }) {
+  if (!comment_id) {
+    return Promise.reject({
+      msg: `Comment ID is required`,
+      status: 400,
+    });
+  }
+  const sql = `DELETE FROM comments WHERE comments.comment_id = $1`;
+  const args = [comment_id];
+  return db.query(sql, args).then(({ rowCount }) => {
+    if (rowCount === 0) {
+      return Promise.reject({
+        status: 404,
+        msg: `Comment with ID "${comment_id}" is not found`,
+      });
+    }
+  });
+}
+
 module.exports = {
   selectCommentsByArticle,
   insertComment,
+  removeComment,
 };

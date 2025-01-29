@@ -11,6 +11,7 @@ const {
 const {
   postComment,
   getCommentsByArticle,
+  deleteComment,
 } = require('./controllers/comments.controllers');
 const {
   handle404,
@@ -35,6 +36,8 @@ app.get('/api/articles/:article_id/comments', getCommentsByArticle);
 app.post('/api/articles/:article_id/comments', postComment);
 
 app.patch('/api/articles/:article_id', patchArticle);
+
+app.delete('/api/comments/:comment_id', deleteComment);
 
 app.use(handle405(app));
 

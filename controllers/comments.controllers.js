@@ -1,6 +1,7 @@
 const {
   selectCommentsByArticle,
   insertComment,
+  removeComment,
 } = require('./../models/comments.models');
 
 function getCommentsByArticle(request, response, next) {
@@ -19,7 +20,16 @@ function postComment(request, response, next) {
     .catch(next);
 }
 
+function deleteComment(request, response, next) {
+  return removeComment(request.params)
+    .then(() => {
+      response.status(204).send();
+    })
+    .catch(next);
+}
+
 module.exports = {
   postComment,
   getCommentsByArticle,
+  deleteComment,
 };
