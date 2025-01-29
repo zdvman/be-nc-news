@@ -17,7 +17,16 @@ function selectArticleById({ article_id }) {
 }
 
 function selectArticles({ sort_by = 'created_at', order = 'desc' }) {
-  const validSortColumns = ['created_at'];
+  const validSortColumns = [
+    'author',
+    'title',
+    'article_id',
+    'topic',
+    'created_at',
+    'votes',
+    'article_img_url',
+    'comment_count',
+  ];
   const validOrders = ['asc', 'desc'];
   let sql = `SELECT 
       articles.author,
@@ -39,7 +48,7 @@ function selectArticles({ sort_by = 'created_at', order = 'desc' }) {
     });
   }
 
-  if (!validOrders.includes(order)) {
+  if (!validOrders.includes(order.toLowerCase())) {
     return Promise.reject({
       msg: `Invalid order: ${order}. Must be 'asc' or 'desc'`,
       status: 400,
