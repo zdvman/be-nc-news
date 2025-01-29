@@ -21,6 +21,8 @@ const {
   handle500,
 } = require('./middleware/errorHandling');
 
+const { getUsers } = require('./controllers/users.controllers');
+
 app.use(express.json());
 
 app.get('/api', getApi);
@@ -38,6 +40,8 @@ app.post('/api/articles/:article_id/comments', postComment);
 app.patch('/api/articles/:article_id', patchArticle);
 
 app.delete('/api/comments/:comment_id', deleteComment);
+
+app.get('/api/users', getUsers);
 
 app.use(handle405(app));
 

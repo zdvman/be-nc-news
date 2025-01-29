@@ -602,3 +602,37 @@ describe('DELETE /api/comments/:comment_id', () => {
       });
   });
 });
+
+describe('GET /api/users', () => {
+  test(`Responds with: an users array of user objects, each of which should have the following properties:
+      - an array of objects, each object should have the following properties:
+      - username
+      - name
+      - avatar_url`, () => {
+    return request(app)
+      .get('/api/users')
+      .expect(200)
+      .then(({ body: { users } }) => {
+        expect(Array.isArray(users)).toBe(true);
+        expect(users.length).toBe(4);
+        users.forEach((user) => {
+          expect(user).toEqual(
+            expect.objectContaining({
+              username: expect.any(String),
+              name: expect.any(String),
+              avatar_url: expect.any(String),
+            })
+          );
+        });
+      });
+  });
+
+  test('404: Responds with error for an incorrect URL', () => {
+    return request(app)
+      .get('/api/invalid-url')
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe('Endpoint not found');
+      });
+  });
+});
