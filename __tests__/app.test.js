@@ -65,7 +65,8 @@ describe('GET /api/articles/:article_id', () => {
       - topic
       - created_at
       - votes
-      - article_img_url`, () => {
+      - article_img_url
+      - comment_count`, () => {
     return request(app)
       .get('/api/articles/1')
       .expect(200)
@@ -81,6 +82,7 @@ describe('GET /api/articles/:article_id', () => {
           votes: 100,
           article_img_url:
             'https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700',
+          comment_count: 11,
         });
       });
   });
@@ -144,7 +146,7 @@ describe('GET /api/articles', () => {
               created_at: expect.any(String),
               votes: expect.any(Number),
               article_img_url: expect.any(String),
-              comment_count: expect.any(String),
+              comment_count: expect.any(Number),
             })
           );
           expect(article).not.toHaveProperty('body');
@@ -744,6 +746,26 @@ describe('GET /api/articles (Topic Query)', () => {
       .expect(200)
       .then(({ body: { articles } }) => {
         expect(articles).toBeSortedBy('votes', { descending: false });
+      });
+  });
+});
+
+describe('GET /api/articles/:article_id (comment_count)', () => {
+  test('200: Returns an article by a valid ID  total count of all the comments with this article_id, when the article has 11 comments', () => {
+    return request(app)
+      .get('/api/articles/1')
+      .expect(200)
+      .then(({ body: { article } }) => {
+        expect(article.comment_count).toBe(11);
+      });
+  });
+
+  test('200: Returns an article by a valid ID, when the article has 0 comments', () => {
+    return request(app)
+      .get('/api/articles/7')
+      .expect(200)
+      .then(({ body: { article } }) => {
+        expect(article.comment_count).toBe(0);
       });
   });
 });
