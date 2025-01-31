@@ -78,7 +78,7 @@ describe('GET /api/articles/:article_id', () => {
           topic: 'mitch',
           author: 'butter_bridge',
           body: 'I find this existence challenging',
-          created_at: '2020-07-09T19:11:00.000Z',
+          created_at: new Date(1594329060000).toISOString(),
           votes: 100,
           article_img_url:
             'https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700',
@@ -403,7 +403,7 @@ describe('PATCH /api/articles/:article_id', () => {
           topic: 'mitch',
           author: 'butter_bridge',
           body: 'I find this existence challenging',
-          created_at: '2020-07-09T19:11:00.000Z',
+          created_at: new Date(1594329060000).toISOString(),
           votes: 105,
           article_img_url:
             'https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700',
@@ -423,7 +423,7 @@ describe('PATCH /api/articles/:article_id', () => {
           topic: 'mitch',
           author: 'butter_bridge',
           body: 'I find this existence challenging',
-          created_at: '2020-07-09T19:11:00.000Z',
+          created_at: new Date(1594329060000).toISOString(),
           votes: 97,
           article_img_url:
             'https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700',
