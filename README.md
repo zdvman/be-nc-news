@@ -137,7 +137,12 @@ npm run seed-prod
 
 ---
 
-## 📌 Endpoints Overview
+## 📌 Endpoints Overview (implemented with Express Routers)
+
+### 📝 GET `/`
+
+Healthcheck endoint
+Returns a JSON object with msg key {msg: 'Healthcheck is passed' }
 
 ### 📝 GET `/api`
 
