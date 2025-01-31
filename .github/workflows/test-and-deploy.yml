@@ -28,9 +28,15 @@ jobs:
       - name: Setup PostgreSQL
         uses: harmon758/postgresql-action@v1
         with:
-          postgresql db: 'nc_news_test'
-          postgresql user: 'zdvman'
-          postgresql password: ${{ secrets.PGPASSWORD }}
+          postgresql_db: 'nc_news_test'
+          postgresql_user: 'zdvman'
+          postgresql_password: ${{ secrets.PGPASSWORD }}
+
+      - name: Check PostgreSQL Status
+        run: sudo service postgresql status
+
+      - name: Print Environment Variables
+        run: env
 
       - name: Install dependencies
         run: npm ci
