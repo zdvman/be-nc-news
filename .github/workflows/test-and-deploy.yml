@@ -32,12 +32,6 @@ jobs:
           postgresql user: 'zdvman'
           postgresql password: ${{ secrets.PGPASSWORD }}
 
-      - name: Start PostgreSQL
-        run: sudo service postgresql start
-
-      - name: Check PostgreSQL Status
-        run: sudo service postgresql status
-
       - name: Install dependencies
         run: npm ci
 
