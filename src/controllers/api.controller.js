@@ -1,4 +1,4 @@
-const { fetchApi } = require('./../models/api.model');
+const { fetchApi } = require('../models/api.model');
 
 function getApi(request, response, next) {
   return fetchApi()

@@ -1,5 +1,5 @@
-const { checkArticleExists, checkUserExists } = require('./../db/seeds/utils');
-const db = require('./../db/connection');
+const { checkArticleExists, checkUserExists } = require('../db/seeds/utils');
+const db = require('../db/connection');
 
 function selectCommentsByArticle(
   { article_id },

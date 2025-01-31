@@ -1,17 +1,36 @@
 const { match } = require('path-to-regexp');
 
 exports.handle405 = (app) => (req, res, next) => {
-  const registeredRoutes = app._router.stack
-    .filter((layer) => layer.route)
-    .map((layer) => ({
-      path: layer.route.path,
-      methods: Object.keys(layer.route.methods).map((m) => m.toUpperCase()),
-    }));
+  const registeredRoutes = [];
 
-  const cleanPath = req.baseUrl + req.path.split('?')[0];
+  const extractRoutes = (router, parentPath = '') => {
+    router.stack.forEach((layer) => {
+      if (layer.route) {
+        // Remove trailing slash for consistency
+        const fullPath = (parentPath + layer.route.path).replace(/\/$/, '');
+        registeredRoutes.push({
+          fullPath,
+          methods: Object.keys(layer.route.methods).map((m) => m.toUpperCase()),
+        });
+      } else if (layer.name === 'router' && layer.handle.stack) {
+        // Handle subrouters recursively
+        extractRoutes(
+          layer.handle,
+          `${parentPath}${layer.regexp.source
+            .replace('^', '') // Remove start-of-string marker
+            .replace('\\/?(?=\\/|$)', '') // Remove Express regex suffix
+            .replace(/\\\//g, '/')}` // Convert "\/" back to "/"
+        );
+      }
+    });
+  };
+
+  extractRoutes(app._router);
+
+  const cleanPath = (req.baseUrl + req.path.split('?')[0]).replace(/\/$/, '');
 
   const matchedRoute = registeredRoutes.find((route) => {
-    const matchFn = match(route.path, { decode: decodeURIComponent });
+    const matchFn = match(route.fullPath, { decode: decodeURIComponent });
     return matchFn(cleanPath);
   });
 

@@ -1,4 +1,4 @@
-const { selectUsers } = require('./../models/users.models');
+const { selectUsers } = require('../models/users.models');
 
 function getUsers(request, response, next) {
   return selectUsers()

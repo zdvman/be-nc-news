@@ -1,4 +1,4 @@
-const db = require('./../connection');
+const db = require('../connection');
 
 exports.convertTimestampToDate = ({ created_at, ...otherProperties }) => {
   if (!created_at) return { ...otherProperties };

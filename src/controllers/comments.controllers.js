@@ -2,7 +2,7 @@ const {
   selectCommentsByArticle,
   insertComment,
   removeComment,
-} = require('./../models/comments.models');
+} = require('../models/comments.models');
 
 function getCommentsByArticle(request, response, next) {
   return selectCommentsByArticle(request.params, request.query)

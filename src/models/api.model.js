@@ -1,7 +1,7 @@
 function fetchApi() {
   return new Promise((resolve, reject) => {
     try {
-      const endpoints = require('./../endpoints.json');
+      const endpoints = require('./../../endpoints.json');
       if (endpoints) {
         resolve(endpoints);
       } else {

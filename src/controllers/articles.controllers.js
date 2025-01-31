@@ -2,7 +2,7 @@ const {
   selectArticleById,
   selectArticles,
   updateArticle,
-} = require('./../models/articles.models');
+} = require('../models/articles.models');
 
 function getArticleById(request, response, next) {
   return selectArticleById(request.params)

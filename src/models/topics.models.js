@@ -1,4 +1,4 @@
-const db = require('./../db/connection');
+const db = require('../db/connection');
 
 function selectTopics() {
   const sql = `SELECT * FROM topics`;

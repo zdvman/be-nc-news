@@ -1,9 +1,9 @@
 const endpointsJson = require('../endpoints.json');
 const request = require('supertest');
-const app = require('./../app');
-const db = require('./../db/connection');
-const testData = require('./../db/data/test-data/index.js');
-const seed = require('./../db/seeds/seed.js');
+const app = require('../src/app.js');
+const db = require('../src/db/connection.js');
+const testData = require('../src/db/data/test-data/index.js');
+const seed = require('../src/db/seeds/seed.js');
 require('jest-sorted');
 
 beforeEach(() => {
