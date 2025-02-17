@@ -49,3 +49,17 @@ exports.checkUserExists = (username) => {
     return;
   });
 };
+
+exports.checkTopicExists = (topic) => {
+  const args = [topic];
+  const sql = `SELECT * FROM topics WHERE slug = $1`;
+  return db.query(sql, args).then(({ rows }) => {
+    if (rows.length === 0) {
+      return Promise.reject({
+        msg: `Invalid topic: "${topic}" does not exist`,
+        status: 404,
+      });
+    }
+    return;
+  });
+};

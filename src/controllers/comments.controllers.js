@@ -2,6 +2,7 @@ const {
   selectCommentsByArticle,
   insertComment,
   removeComment,
+  updateComment,
 } = require('../models/comments.models');
 
 function getCommentsByArticle(request, response, next) {
@@ -28,8 +29,17 @@ function deleteComment(request, response, next) {
     .catch(next);
 }
 
+function patchComment(request, response, next) {
+  return updateComment(request.body?.inc_votes, request.params?.comment_id)
+    .then((comment) => {
+      response.status(200).send({ comment });
+    })
+    .catch(next);
+}
+
 module.exports = {
   postComment,
   getCommentsByArticle,
   deleteComment,
+  patchComment,
 };

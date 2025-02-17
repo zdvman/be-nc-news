@@ -1,5 +1,6 @@
 const express = require('express');
 const app = express();
+const cors = require('cors');
 const apiRouter = require('./routes/api-router');
 const {
   handle404,
@@ -10,6 +11,7 @@ const {
 } = require('./middleware/errorHandling');
 
 app.use(express.json());
+app.use(cors());
 
 app.get('/', (request, response) => {
   response.status(200).send({ msg: 'Healthcheck is passed' });

@@ -1,6 +1,13 @@
 const db = require('../db/connection');
+const { checkTopicExists, checkUserExists } = require('../db/seeds/utils');
 
-function selectArticleById({ article_id }) {
+function selectArticleById(article_id) {
+  if (article_id === undefined || article_id === null) {
+    return Promise.reject({
+      msg: `Article ID is required`,
+      status: 400,
+    });
+  }
   const sql = `SELECT
     articles.author,
     articles.title,
@@ -92,8 +99,8 @@ function selectArticles({ sort_by = 'created_at', order = 'desc', topic }) {
   });
 }
 
-function updateArticle({ article_id }, { inc_votes }) {
-  if (!article_id) {
+function updateArticle(article_id, inc_votes) {
+  if (article_id === undefined || article_id === null) {
     return Promise.reject({
       msg: `Article ID is required`,
       status: 400,
@@ -134,8 +141,71 @@ function updateArticle({ article_id }, { inc_votes }) {
   });
 }
 
+function insertArticle(request) {
+  if (!request.body || typeof request.body !== 'object') {
+    return Promise.reject({
+      msg: `Request body is required`,
+      status: 400,
+    });
+  }
+  const { author, title, body, topic, article_img_url } = request.body;
+
+  // Validate required fields
+  if (
+    !author ||
+    !title ||
+    !body ||
+    !topic ||
+    title.trim() === '' ||
+    body.trim() === ''
+  ) {
+    return Promise.reject({
+      msg: `Missing required fields: author, title, body, or topic`,
+      status: 400,
+    });
+  }
+
+  const args = [
+    author,
+    title,
+    body,
+    topic,
+    article_img_url ||
+      'https://peoplesblog.co.in/sri-vedanta-swarajya-sangam/assets/img/books/default.jpeg',
+  ];
+
+  if (args.length !== 5) {
+    return Promise.reject({
+      msg: `Something went wrong with body parsing from request...`,
+      status: 422,
+    });
+  }
+
+  const sql = `INSERT INTO articles (author, title, body, topic, article_img_url) 
+               VALUES ($1, $2, $3, $4, $5) 
+               RETURNING article_id, votes, created_at`;
+  let newArticle;
+  return Promise.all([checkTopicExists(topic), checkUserExists(author)])
+    .then(() => {
+      return db.query(sql, args);
+    })
+    .then(({ rows }) => {
+      newArticle = rows[0];
+
+      // Fetch comment_count separately
+      const countSql = `SELECT COUNT(*) AS comment_count FROM comments WHERE article_id = $1`;
+
+      return db.query(countSql, [newArticle.article_id]);
+    })
+    .then(({ rows }) => {
+      newArticle.comment_count = parseInt(rows[0].comment_count, 10) || 0;
+      return newArticle;
+    });
+}
+
 module.exports = {
   selectArticleById,
   selectArticles,
   updateArticle,
+  insertArticle,
 };
