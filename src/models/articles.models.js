@@ -121,11 +121,7 @@ function updateArticle(article_id, inc_votes) {
   const args = [inc_votes, article_id];
 
   const sql = `UPDATE articles 
-    SET votes = 
-      CASE 
-        WHEN votes + $1 < 0 THEN 0 
-        ELSE votes + $1 
-      END
+    SET votes = votes + $1
     WHERE article_id = $2 
     RETURNING *;
   `;

@@ -114,11 +114,7 @@ function updateComment(inc_votes, comment_id) {
   const args = [inc_votes, comment_id];
 
   const sql = `UPDATE comments 
-      SET votes = 
-        CASE 
-          WHEN votes + $1 < 0 THEN 0 
-          ELSE votes + $1 
-        END
+      SET votes = votes + $1
       WHERE comment_id = $2 
       RETURNING *;
     `;
